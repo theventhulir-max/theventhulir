@@ -568,15 +568,15 @@ function CheckoutContent() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', fontSize: '0.86rem', marginBottom: '12px' }}>
               <div>
-                <span style={{ color: '#788c81', display: 'block', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>Total Amount</span>
-                <strong style={{ color: '#b45309', fontSize: '1.1rem' }}>₹{placedOrder.totalAmount || finalPayable}</strong>
-                <span style={{ fontSize: '11px', color: '#557262', marginLeft: '4px' }}>
-                  ({placedOrder.paymentMethod || paymentMethod})
+                <span style={{ color: '#0f172a', display: 'block', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>Total Amount</span>
+                <strong style={{ color: '#0f172a', fontSize: '1.15rem' }}>₹{placedOrder.totalAmount || finalPayable}</strong>
+                <span style={{ fontSize: '11px', color: '#0f172a', fontWeight: 650, marginLeft: '4px' }}>
+                  ({placedOrder.paymentMethod === 'Razorpay' ? 'Prepaid Online' : (placedOrder.paymentMethod || 'Cash on Delivery')})
                 </span>
                 {placedOrder.razorpayPaymentId && (
-                  <div style={{ fontSize: '11px', color: '#166534', fontWeight: 700, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{ fontSize: '11px', color: '#0f172a', fontWeight: 650, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <ShieldCheck size={13} color="#166534" />
-                    <span>Payment ID: <code style={{ fontFamily: 'monospace', background: '#ecfdf5', padding: '1px 6px', borderRadius: '4px' }}>{placedOrder.razorpayPaymentId}</code></span>
+                    <span>Transaction ID: <code style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', color: '#0f172a' }}>{placedOrder.razorpayPaymentId}</code></span>
                   </div>
                 )}
               </div>
@@ -879,52 +879,66 @@ function CheckoutContent() {
               </div>
 
               <div className="payment-methods-grid">
-                {/* Online Payment via Razorpay */}
+                {/* 1. Online Payment: UPI, Cards, NetBanking */}
                 <div 
                   className={`payment-method-card ${paymentMethod === 'Razorpay' ? 'selected' : ''}`}
                   onClick={() => setPaymentMethod('Razorpay')}
                   role="button"
                   tabIndex={0}
-                  style={paymentMethod === 'Razorpay' ? { borderColor: '#1B5E2F', background: '#f0fdf4' } : {}}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <div className="payment-method-title">
-                      <CreditCard size={18} color="#1B5E2F" />
-                      <span style={{ color: '#1B5E2F', fontWeight: 750 }}>Online Payment (Razorpay)</span>
-                    </div>
-                    <span style={{ fontSize: '10px', background: '#dcfce7', color: '#166534', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.5px' }}>
-                      ⚡ INSTANT
-                    </span>
+                  <div className="payment-radio-circle">
+                    {paymentMethod === 'Razorpay' && <div className="payment-radio-dot" />}
                   </div>
-                  <p className="payment-method-desc" style={{ color: '#2d5a3c' }}>
-                    Pay securely via UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards, or NetBanking. Instant confirmation.
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '0.74rem', color: '#15803d', fontWeight: 650 }}>
-                    <ShieldCheck size={14} color="#15803d" />
-                    <span>Official 256-bit Encrypted Gateway</span>
+
+                  <div className="payment-method-content">
+                    <div className="payment-method-header-row">
+                      <div className="payment-method-title">
+                        <CreditCard size={18} color="#0f172a" />
+                        <span>UPI / Credit & Debit Cards / NetBanking</span>
+                      </div>
+                      <span style={{ fontSize: '10px', background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.5px' }}>
+                        FAST & SECURE
+                      </span>
+                    </div>
+
+                    <p className="payment-method-desc">
+                      Google Pay, PhonePe, Paytm, BHIM UPI, Visa, Mastercard, RuPay & all major banks.
+                    </p>
+
+                    <div className="payment-subtext">
+                      <ShieldCheck size={14} color="#166534" />
+                      <span style={{ color: '#0f172a' }}>Instant Confirmation • 100% Safe & Encrypted</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Cash on Delivery / WhatsApp Order */}
+                {/* 2. Cash on Delivery */}
                 <div 
                   className={`payment-method-card ${paymentMethod === 'WhatsApp Order' ? 'selected' : ''}`}
                   onClick={() => setPaymentMethod('WhatsApp Order')}
                   role="button"
                   tabIndex={0}
-                  style={paymentMethod === 'WhatsApp Order' ? { borderColor: '#1B5E2F', background: '#f0fdf4' } : {}}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <div className="payment-method-title">
-                      <MessageCircle size={18} color="#1B5E2F" />
-                      <span style={{ color: '#1B5E2F', fontWeight: 750 }}>Cash on Delivery / WhatsApp</span>
-                    </div>
+                  <div className="payment-radio-circle">
+                    {paymentMethod === 'WhatsApp Order' && <div className="payment-radio-dot" />}
                   </div>
-                  <p className="payment-method-desc" style={{ color: '#2d5a3c' }}>
-                    Confirm order via official farm WhatsApp (+91 94861 45001). Pay in cash when your farm harvest arrives.
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '0.74rem', color: '#557262', fontWeight: 600 }}>
-                    <Truck size={14} color="#557262" />
-                    <span>Pay at your doorstep</span>
+
+                  <div className="payment-method-content">
+                    <div className="payment-method-header-row">
+                      <div className="payment-method-title">
+                        <Banknote size={18} color="#0f172a" />
+                        <span>Cash on Delivery (COD)</span>
+                      </div>
+                    </div>
+
+                    <p className="payment-method-desc">
+                      Pay with cash or UPI QR code when your order is delivered to your address.
+                    </p>
+
+                    <div className="payment-subtext">
+                      <Truck size={14} color="#475569" />
+                      <span style={{ color: '#0f172a' }}>Pay at your doorstep</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -975,19 +989,19 @@ function CheckoutContent() {
                     style={selectedCartItems.length === 0 ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
                   >
                     {submitting ? (
-                      <span>{paymentMethod === 'Razorpay' ? 'Opening Payment Gateway...' : 'Securing Your Order...'}</span>
+                      <span>Connecting to Secure Payment...</span>
                     ) : selectedCartItems.length === 0 ? (
                       <span>Select Products to Order</span>
                     ) : paymentMethod === 'Razorpay' ? (
                       <>
                         <CreditCard size={18} />
-                        <span>Pay via UPI / Cards ({selectedCount} items) • ₹{finalPayable}</span>
+                        <span>Proceed to Payment • ₹{finalPayable}</span>
                         <ArrowRight size={18} />
                       </>
                     ) : (
                       <>
-                        <MessageCircle size={18} />
-                        <span>Confirm WhatsApp Order ({selectedCount} items) • ₹{finalPayable}</span>
+                        <Banknote size={18} />
+                        <span>Place Cash on Delivery Order • ₹{finalPayable}</span>
                         <ArrowRight size={18} />
                       </>
                     )}
@@ -1312,19 +1326,19 @@ function CheckoutContent() {
                   style={selectedCartItems.length === 0 ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
                 >
                   {submitting ? (
-                    <span>{paymentMethod === 'Razorpay' ? 'Opening Payment Gateway...' : 'Securing Your Order...'}</span>
+                    <span>Connecting to Secure Payment...</span>
                   ) : selectedCartItems.length === 0 ? (
                     <span>Select Products to Order</span>
                   ) : paymentMethod === 'Razorpay' ? (
                     <>
                       <CreditCard size={18} />
-                      <span>Pay via UPI / Cards ({selectedCount} items) • ₹{finalPayable}</span>
+                      <span>Proceed to Payment • ₹{finalPayable}</span>
                       <ArrowRight size={18} />
                     </>
                   ) : (
                     <>
-                      <MessageCircle size={18} />
-                      <span>Confirm WhatsApp Order ({selectedCount} items) • ₹{finalPayable}</span>
+                      <Banknote size={18} />
+                      <span>Place Cash on Delivery Order • ₹{finalPayable}</span>
                       <ArrowRight size={18} />
                     </>
                   )}
