@@ -49,7 +49,7 @@ export default function Navbar({ onAuthOpen, onSearchOpen }) {
   const ANNOUNCEMENTS = [
     { text: t('announcement1', '🌿 100% Certified Organic & Single-Origin Direct from Farms'), icon: ShieldCheck },
     { text: t('announcement2', '🚚 Free Express Delivery Across India on Orders Above ₹499'), icon: Truck },
-    { text: t('announcement3', '🎁 Flat 15% OFF On 1st Order — Code: FIRSTPURE'), icon: Gift },
+    { text: t('announcement3', '✨ Farm Fresh Harvest — Wood Cold-Pressed & Stone Ground'), icon: Sparkles },
     { text: t('announcement4', '💬 Instant WhatsApp Order: +91 94861 45001'), icon: PhoneCall },
   ];
 

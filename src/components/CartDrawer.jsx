@@ -264,48 +264,6 @@ export default function CartDrawer({ onCheckout }) {
         {/* Footer */}
         {cartItems.length > 0 && (
           <div className="cart-footer">
-            {/* Coupon Box */}
-            <div className="coupon-section">
-              <div className="coupon-row">
-                <Tag size={15} className="coupon-icon" />
-                <input
-                  placeholder="Enter coupon code"
-                  value={couponInput}
-                  onChange={e => { setCouponInput(e.target.value); setCouponError(''); }}
-                  onKeyDown={e => e.key === 'Enter' && applyCouponCode()}
-                />
-                <button type="button" onClick={() => applyCouponCode()}>Apply</button>
-              </div>
-
-              {!appliedCoupon && !couponError && (
-                <div className="coupon-suggestion-row">
-                  <span className="coupon-suggestion-label">Available:</span>
-                  <button 
-                    type="button" 
-                    className="coupon-chip"
-                    onClick={() => applyCouponCode('VENTHULIR')}
-                  >
-                    🏷️ VENTHULIR
-                  </button>
-                  <button 
-                    type="button" 
-                    className="coupon-chip"
-                    onClick={() => applyCouponCode('WELCOME10')}
-                  >
-                    🏷️ WELCOME10
-                  </button>
-                </div>
-              )}
-
-              {couponError && <p className="coupon-error">{couponError}</p>}
-              {appliedCoupon && (
-                <div className="coupon-success-badge">
-                  <span>✓ {appliedCoupon.label} applied!</span>
-                  <button type="button" onClick={() => { setAppliedCoupon(null); setCouponInput(''); }}>Remove</button>
-                </div>
-              )}
-            </div>
-
             {/* Totals */}
             <div className="cart-totals">
               <div className="total-row">

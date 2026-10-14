@@ -326,35 +326,6 @@ function CartPageContent() {
             <div className="cart-summary-card">
               <h2 className="summary-card-title">Order Summary</h2>
 
-              {/* Coupon Box */}
-              <div className="cart-coupon-box">
-                <input
-                  type="text"
-                  placeholder="Coupon Code (e.g. VENTHULIR)"
-                  className="cart-coupon-input"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="btn-apply-cart-coupon"
-                  onClick={handleApplyCoupon}
-                >
-                  Apply
-                </button>
-              </div>
-
-              {couponMsg.text && (
-                <div style={{
-                  fontSize: '0.82rem',
-                  fontWeight: 650,
-                  color: couponMsg.type === 'success' ? '#1B5E2F' : '#b91c1c',
-                  marginBottom: '14px'
-                }}>
-                  {couponMsg.text}
-                </div>
-              )}
-
               {/* Pricing Breakdown */}
               <div className="cart-breakdown-list">
                 <div className="breakdown-row">

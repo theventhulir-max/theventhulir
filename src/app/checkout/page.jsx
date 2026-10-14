@@ -1225,35 +1225,6 @@ function CheckoutContent() {
                 </div>
               )}
 
-              {/* Coupon Box */}
-              <div className="checkout-coupon-wrap">
-                <input
-                  type="text"
-                  placeholder="Coupon code (e.g. VENTHULIR)"
-                  className="checkout-coupon-input"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                />
-                <button 
-                  type="button" 
-                  className="btn-checkout-coupon"
-                  onClick={handleApplyCoupon}
-                >
-                  Apply
-                </button>
-              </div>
-
-              {couponMsg.text && (
-                <div style={{
-                  fontSize: '0.8rem',
-                  fontWeight: 650,
-                  color: couponMsg.type === 'success' ? '#1B5E2F' : '#b91c1c',
-                  marginBottom: '12px'
-                }}>
-                  {couponMsg.text}
-                </div>
-              )}
-
               {/* Pricing Breakdown */}
               <div className="checkout-pricing-list">
                 <div className="pricing-row">

@@ -9,7 +9,7 @@ export const TRANSLATIONS = {
     // Top Bar & Announcements
     announcement1: '🌿 100% Certified Organic & Single-Origin Direct from Farms',
     announcement2: '🚚 Free Express Delivery Across India on Orders Above ₹499',
-    announcement3: '🎁 Flat 15% OFF On 1st Order — Code: FIRSTPURE',
+    announcement3: '✨ Farm Fresh Harvest — Wood Cold-Pressed & Stone Ground',
     announcement4: '💬 Instant WhatsApp Order & Support: +91 87784 76414',
     purityBadge: '100% PURE',
     shopFreshHarvest: 'Shop Fresh Harvest',
@@ -196,7 +196,7 @@ export const TRANSLATIONS = {
     // Top Bar & Announcements
     announcement1: '🌿 100% இயற்கை பண்ணை நேரடி விளைபொருட்கள்',
     announcement2: '🚚 ₹499-க்கு மேல் இந்தியா முழுவதும் இலவச டெலிவரி',
-    announcement3: '🎁 முதல் ஆர்டருக்கு 15% தள்ளுபடி — கூப்பன்: FIRSTPURE',
+    announcement3: '✨ பாரம்பரிய மரச்செக்கு எண்ணெய் & நவதானியங்கள்',
     announcement4: '💬 வாட்ஸ்அப் ஆர்டர்: +91 87784 76414',
     purityBadge: '100% அசல்',
     shopFreshHarvest: 'பொருட்கள் வாங்க',
