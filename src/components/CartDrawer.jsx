@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { X, Plus, Minus, ShoppingBag, Tag, Truck, Trash2, ArrowRight, ShieldCheck, Sparkles, AlertCircle } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, Tag, Truck, Trash2, ArrowRight, ShieldCheck, Sparkles, AlertCircle, MessageCircle } from 'lucide-react';
 import { PRESET_COUPONS } from '@/data/constants';
+import { getWhatsAppCartOrderUrl } from '@/lib/whatsapp';
 import './CartDrawer.css';
 
 const SHIPPING_FREE_THRESHOLD = 499;
@@ -345,9 +346,15 @@ export default function CartDrawer({ onCheckout }) {
             {/* Primary CTA */}
             <button 
               className="checkout-cta" 
-              onClick={() => onCheckout({ grandTotal, discount, appliedCoupon, shippingFee })}
+              onClick={() => {
+                const url = getWhatsAppCartOrderUrl(cartItems, grandTotal);
+                setIsCartOpen(false);
+                window.open(url, '_blank', 'noopener,noreferrer');
+              }}
+              style={{ background: '#1B5E2F', borderColor: '#1B5E2F' }}
             >
-              <span>{isTamil ? `பணம் செலுத்த தொடரவும் • ₹${grandTotal}` : `Proceed to Checkout • ₹${grandTotal}`}</span>
+              <MessageCircle size={18} color="#ffffff" />
+              <span>{isTamil ? `வாட்ஸ்அப்பில் வாங்கவும் • ₹${grandTotal}` : `Buy Now on WhatsApp • ₹${grandTotal}`}</span>
               <ArrowRight size={17} />
             </button>
 

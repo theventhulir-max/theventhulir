@@ -63,14 +63,38 @@ export default function CheckoutModal({ cartSummary, onClose, onAuthOpen }) {
           discountAmount:  discount,
           couponCode:      appliedCoupon?.code,
           shippingCharge:  shippingFee,
-          paymentMethod:   'Cash on Delivery',
+          paymentMethod:   'WhatsApp Order',
         })
       });
       const data = await res.json();
       if (res.ok) {
-        setOrderId(data.order?._id || data._id || 'VEN' + Date.now());
+        const newId = data.order?._id || data._id || 'VEN' + Date.now();
+        setOrderId(newId);
         clearCart();
         setStep('success');
+
+        // Open WhatsApp directly
+        const cleanRef = String(newId).slice(-8).toUpperCase();
+        const itemsList = cartItems.map(i => `▫️ *${i.name}*${i.variant?.label ? ` (${i.variant.label})` : ''} × ${i.quantity} = ₹${i.price * i.quantity}`).join('\n');
+        const waMsg = `🌿 *VENTHULIR ORGANIC ORDER* 🌿
+_Order Reference: #${cleanRef}_
+━━━━━━━━━━━━━━━━━━━━━
+
+Hello Venthulir, I placed an order via website:
+
+👤 *Name:* ${form.name.trim()}
+📱 *Phone:* ${form.phone.trim()}
+📍 *Address:* ${form.address.trim()}, ${form.city.trim()}, ${form.state || 'Tamil Nadu'} - ${form.zipCode.trim()}
+
+🛒 *Items:*
+${itemsList}
+
+💰 *Total Payable:* ₹${grandTotal}
+
+Please confirm my order and dispatch details! 🙏`;
+
+        const waUrl = `https://api.whatsapp.com/send?phone=919486145001&text=${encodeURIComponent(waMsg)}`;
+        window.open(waUrl, '_blank');
       } else {
         setError(data.error || data.msg || 'Order failed. Please try again.');
         setStep('form');
@@ -133,7 +157,9 @@ export default function CheckoutModal({ cartSummary, onClose, onAuthOpen }) {
                   <div className="co-total-row"><span>Shipping</span><span>{shippingFee === 0 ? <span className="free">FREE</span> : `₹${shippingFee}`}</span></div>
                   <div className="co-total-row grand"><span>Total</span><strong>₹{grandTotal}</strong></div>
                 </div>
-                <div className="payment-badge"><span>💵 Cash on Delivery</span></div>
+                <div className="payment-badge" style={{ background: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0' }}>
+                  <span>📱 Order via WhatsApp (+91 94861 45001)</span>
+                </div>
               </div>
 
               {/* Delivery form */}
@@ -162,11 +188,11 @@ export default function CheckoutModal({ cartSummary, onClose, onAuthOpen }) {
                     className="btn-primary co-submit"
                     style={{ background: '#b45309' }}
                   >
-                    🔒 Sign In to Place Order · ₹{grandTotal}
+                    🔒 Sign In to Order via WhatsApp · ₹{grandTotal}
                   </button>
                 ) : (
-                  <button type="submit" className="btn-primary co-submit">
-                    Place Order · ₹{grandTotal}
+                  <button type="submit" className="btn-primary co-submit" style={{ background: '#1B5E2F' }}>
+                    Order via WhatsApp · ₹{grandTotal}
                   </button>
                 )}
                 <p className="co-auth-note" style={{ color: isAuthenticated ? '#1B5E2F' : '#b45309', fontWeight: 600 }}>

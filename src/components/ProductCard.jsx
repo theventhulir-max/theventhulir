@@ -10,6 +10,7 @@ import {
   ShoppingBag, Eye, Star, Check, Heart, ArrowRight, 
   Flame, Tag, Zap
 } from 'lucide-react';
+import { getWhatsAppProductOrderUrl } from '@/lib/whatsapp';
 import './ProductCard.css';
 
 // Helper to get realistic, unique review count and rating per product
@@ -47,6 +48,21 @@ export default function ProductCard({ product, onQuickView, onBuyNow }) {
   const [added, setAdded] = useState(false);
   const [isBuying, setIsBuying] = useState(false);
   const [liked, setLiked] = useState(false);
+
+  // Synchronize selectedVariant whenever product or product.variants update
+  useEffect(() => {
+    if (!product?.variants || product.variants.length === 0) {
+      setSelectedVariant(null);
+      return;
+    }
+    setSelectedVariant((prev) => {
+      if (prev?.label) {
+        const match = product.variants.find((v) => v.label === prev.label);
+        if (match) return match;
+      }
+      return product.variants[0];
+    });
+  }, [product]);
 
   const productUrl = `/products/${product?._id || product?.slug || product?.id || ''}`;
 
@@ -103,15 +119,8 @@ export default function ProductCard({ product, onQuickView, onBuyNow }) {
 
   const handleBuyNow = (e) => {
     e.stopPropagation();
-    if (isBuying) return;
-    setIsBuying(true);
-    const itemKey = addToCart(product, selectedVariant, 1);
-    setIsCartOpen(false);
-    if (onBuyNow) {
-      onBuyNow(product, selectedVariant, itemKey);
-    } else {
-      router.push(`/checkout${itemKey ? `?buyNow=${encodeURIComponent(itemKey)}` : ''}`);
-    }
+    const url = getWhatsAppProductOrderUrl(product, selectedVariant, 1);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const toggleWishlist = (e) => {

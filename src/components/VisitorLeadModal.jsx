@@ -53,8 +53,8 @@ export default function VisitorLeadModal() {
         isSubmittedRef.current = true;
         return;
       }
-      // Schedule initial popup appearance with a random 15 to 20 seconds difference
-      nextTriggerTimeRef.current = Date.now() + getRandomInt(15000, 20000);
+      // Schedule initial popup appearance with a random 20 to 25 seconds difference
+      nextTriggerTimeRef.current = Date.now() + getRandomInt(20000, 25000);
     }
   }, [isAuthenticated, user]);
 
@@ -77,7 +77,7 @@ export default function VisitorLeadModal() {
         return;
       }
 
-      // Check if target random time reached (15 to 20 seconds)
+      // Check if target random time reached (20 to 25 seconds)
       if (nextTriggerTimeRef.current > 0 && Date.now() >= nextTriggerTimeRef.current) {
         setIsOpen(true);
         nextTriggerTimeRef.current = 0;
@@ -125,9 +125,9 @@ export default function VisitorLeadModal() {
     setSubmitAttempted(false);
     setError('');
 
-    // Schedule next popup after a random 15 to 20 seconds difference if not submitted
+    // Schedule next popup after a random 20 to 25 seconds difference if not submitted
     if (!isSubmittedRef.current) {
-      nextTriggerTimeRef.current = Date.now() + getRandomInt(15000, 20000);
+      nextTriggerTimeRef.current = Date.now() + getRandomInt(20000, 25000);
     }
   };
 

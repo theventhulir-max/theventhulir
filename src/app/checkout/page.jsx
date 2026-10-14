@@ -110,7 +110,7 @@ function CheckoutContent() {
     zipCode: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
+  const [paymentMethod, setPaymentMethod] = useState('WhatsApp Order');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMsg, setCouponMsg] = useState({ type: '', text: '' });
@@ -366,12 +366,26 @@ function CheckoutContent() {
       const data = await res.json();
 
       if (res.ok) {
-        setPlacedOrder(data.order || { _id: 'VEN-' + Date.now(), totalAmount: finalPayable });
+        const confirmedOrder = data.order || { _id: 'VEN-' + Date.now(), totalAmount: finalPayable };
+        setPlacedOrder(confirmedOrder);
         // Remove only the purchased items from cart, keep remaining items safe
         if (selectedCartItems.length === cartItems.length) {
           clearCart();
         } else {
           selectedCartItems.forEach(item => removeFromCart(item.key));
+        }
+
+        // Open WhatsApp directly with order message
+        try {
+          const orderRef = (confirmedOrder._id || confirmedOrder.id || '').toString().slice(-8).toUpperCase();
+          const itemsList = selectedCartItems.map(i => `▫️ *${i.name}*${i.variant?.label ? ` (${i.variant.label})` : ''} × ${i.quantity} = ₹${i.price * i.quantity}`).join('\n');
+          const waMsg = `🌿 *VENTHULIR ORGANIC ORDER* 🌿\n_Order Reference: #${orderRef}_\n━━━━━━━━━━━━━━━━━━━━━\n\nHello Venthulir, I placed an order via website:\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${formData.phone.trim()}\n📍 *Address:* ${formData.address.trim()}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.zipCode.trim()}\n\n🛒 *Items:*\n${itemsList}\n\n💰 *Total Payable:* ₹${finalPayable}\n\nPlease confirm my order and dispatch details! 🙏`;
+          const waUrl = `https://api.whatsapp.com/send?phone=919486145001&text=${encodeURIComponent(waMsg)}`;
+          if (typeof window !== 'undefined') {
+            window.open(waUrl, '_blank');
+          }
+        } catch (e) {
+          console.warn('WhatsApp redirect error:', e);
         }
       } else {
         setOrderError(data.error || data.msg || 'Unable to place order. Please verify details.');
@@ -448,8 +462,19 @@ function CheckoutContent() {
             )}
           </div>
 
-          {/* Action Buttons: Live Tracking & Continue Shopping */}
+          {/* Action Buttons: WhatsApp Chat, Live Tracking & Continue Shopping */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <a 
+              href={`https://api.whatsapp.com/send?phone=919486145001&text=${encodeURIComponent(`🌿 Order #${orderRef}: Hello Venthulir, I have booked my order for ₹${placedOrder.totalAmount || finalPayable}. Please confirm dispatch details! 🙏`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-confirm-place-order" 
+              style={{ textDecoration: 'none', width: '100%', justifyContent: 'center', fontSize: '0.95rem', padding: '14px 20px', background: '#25D366', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)' }}
+            >
+              <MessageCircle size={20} />
+              <span>Connect & Confirm on WhatsApp (+91 94861 45001)</span>
+            </a>
+
             <Link 
               href="/profile" 
               className="btn-confirm-place-order" 
@@ -715,28 +740,18 @@ function CheckoutContent() {
               </div>
 
               <div className="payment-methods-grid">
-                {/* Cash on Delivery */}
+                {/* Order via WhatsApp */}
                 <div 
-                  className={`payment-method-card ${paymentMethod === 'Cash on Delivery' ? 'selected' : ''}`}
-                  onClick={() => setPaymentMethod('Cash on Delivery')}
+                  className="payment-method-card selected"
+                  style={{ borderColor: '#1B5E2F', background: '#f0fdf4' }}
                 >
                   <div className="payment-method-title">
-                    <Banknote size={18} color="#1B5E2F" />
-                    <span>Cash on Delivery</span>
+                    <MessageCircle size={18} color="#1B5E2F" />
+                    <span style={{ color: '#1B5E2F', fontWeight: 700 }}>Order via WhatsApp (+91 94861 45001)</span>
                   </div>
-                  <p className="payment-method-desc">Pay with cash or UPI upon package handover.</p>
-                </div>
-
-                {/* Instant UPI / QR */}
-                <div 
-                  className={`payment-method-card ${paymentMethod === 'UPI / QR Pay' ? 'selected' : ''}`}
-                  onClick={() => setPaymentMethod('UPI / QR Pay')}
-                >
-                  <div className="payment-method-title">
-                    <QrCode size={18} color="#b45309" />
-                    <span>UPI / QR Code</span>
-                  </div>
-                  <p className="payment-method-desc">GPay, PhonePe, Paytm, or BHIM scan on delivery.</p>
+                  <p className="payment-method-desc" style={{ color: '#2d5a3c' }}>
+                    Instant order booking directly through our official farm WhatsApp. No advance payment required; our team will confirm dispatch and assist you personally.
+                  </p>
                 </div>
               </div>
 
@@ -769,7 +784,8 @@ function CheckoutContent() {
                     <span>Select Products to Order</span>
                   ) : (
                     <>
-                      <span>Confirm & Place Order ({selectedCount} items) • ₹{finalPayable}</span>
+                      <MessageCircle size={18} />
+                      <span>Confirm Order via WhatsApp ({selectedCount} items) • ₹{finalPayable}</span>
                       <ArrowRight size={18} />
                     </>
                   )}
@@ -1082,7 +1098,7 @@ function CheckoutContent() {
                   }}
                 >
                   <Lock size={18} />
-                  <span>Sign In to Place Order • ₹{finalPayable}</span>
+                  <span>Sign In to Order via WhatsApp • ₹{finalPayable}</span>
                   <ArrowRight size={18} />
                 </button>
               ) : (
@@ -1098,7 +1114,8 @@ function CheckoutContent() {
                     <span>Select Products to Order</span>
                   ) : (
                     <>
-                      <span>Confirm & Place Order ({selectedCount} items) • ₹{finalPayable}</span>
+                      <MessageCircle size={18} />
+                      <span>Confirm Order via WhatsApp ({selectedCount} items) • ₹{finalPayable}</span>
                       <ArrowRight size={18} />
                     </>
                   )}

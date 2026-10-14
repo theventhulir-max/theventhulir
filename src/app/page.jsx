@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { BotanicalCorner } from '@/components/BotanicalOrnament';
+import { getWhatsAppProductOrderUrl } from '@/lib/whatsapp';
 import { useLanguage } from '@/context/LanguageContext';
 import './HomePage.css';
 
@@ -43,28 +44,12 @@ const CATEGORIES = [
     iconType: 'sparkles',
     badge: 'Sun-Dried & Stone-Ground',
     desc: 'High curcumin Salem turmeric, vivid Guntur red chillies, and fragrant Erode coriander stone-ground at low RPMs.',
-    items: '6 Pure Powders Available',
-    filterParam: 'Spice Powders',
+    items: '3 Pure Powders Available',
+    filterParam: 'Spices & Powders',
     image: imgTurmeric,
     secondaryImg: imgChilli,
     origin: 'Salem & Guntur Direct Farms',
-    highlights: ['Salem Turmeric', 'Guntur Red Chilli', 'Erode Coriander', 'Black Pepper'],
-    isFeatured: true,
-    accentColor: '#1B5E2F'
-  },
-  { 
-    id: 'oils',
-    name: 'Cold-Pressed Oils',  
-    tamilName: 'மரச்செக்கு எண்ணெய்கள்',
-    iconType: 'droplets',
-    badge: 'Traditional Chekku < 40°C',
-    desc: 'Extracted in native Vaagai wood mortars without heat or artificial solvents. Retains live natural antioxidants & rich ancestral aroma.',
-    items: '4 Virgin Oils Available',
-    filterParam: 'Cold-Pressed Oils',
-    image: imgOilGingelly,
-    secondaryImg: imgOilCoconut,
-    origin: 'Native Tamil Nadu Chekku',
-    highlights: ['Gingelly (Sesame)', 'Groundnut', 'Pure Coconut', 'Sunflower'],
+    highlights: ['Salem Turmeric', 'Guntur Red Chilli', 'Erode Coriander'],
     isFeatured: true,
     accentColor: '#1B5E2F'
   },
@@ -73,62 +58,17 @@ const CATEGORIES = [
     name: 'Heritage Masala Blends',      
     tamilName: 'பாரம்பரிய கூட்டு மசாலா',
     iconType: 'flame',
-    badge: '12 Hand-Roasted Spices',
-    desc: 'Slow-roasted in small batches following ancestral family recipes. Fragrant heart for wholesome rasam, sambar & curries.',
-    items: '5 Authentic Blends Available',
+    badge: 'Hand-Roasted Heritage Spices',
+    desc: 'Slow-roasted in small batches following ancestral family recipes. Fragrant heart for wholesome rasam, sambar & authentic Indian cooking.',
+    items: '2 Authentic Blends Available',
     filterParam: 'Masala Blends',
     image: imgSambar,
     secondaryImg: imgGaramMasala,
     origin: 'Chettinad & Kongu Heritage',
-    highlights: ['Traditional Sambar', 'Royal Garam Masala', 'Kongu Rasam Powder'],
-    isFeatured: false,
+    highlights: ['Heritage Sambar Powder', 'Authentic Royal Garam Masala'],
+    isFeatured: true,
     accentColor: '#1B5E2F'
-  },
-  { 
-    id: 'rice',
-    name: 'Ancient Heirloom Grains',     
-    tamilName: 'பாரம்பரிய அரிசி ரகங்கள்',
-    iconType: 'wheat',
-    badge: '100% Native Tamil Grains',
-    desc: 'Nutrient-dense indigenous paddy cultivated with zero synthetic fertilizers. High natural fiber, minerals & low glycemic index.',
-    items: '4 Native Grains Available',
-    filterParam: 'All',
-    image: null,
-    origin: 'Thanjavur & Cauvery Delta',
-    highlights: ['Karuppu Kavuni', 'Mappillai Samba', 'Poongar Rice', 'Native Millets'],
-    isFeatured: false,
-    accentColor: '#1B5E2F'
-  },
-  { 
-    id: 'sweeteners',
-    name: 'Pure Natural Sweeteners', 
-    tamilName: 'இயற்கை நாட்டு சர்க்கரை & தேன்',
-    iconType: 'sun',
-    badge: '100% Unrefined & Chemical-Free',
-    desc: 'Naturally clarified country sugar, native palm jaggery, and raw forest honey. Zero bone char, bleaching agents or preservatives.',
-    items: '3 Sweet Staples Available',
-    filterParam: 'All',
-    image: null,
-    origin: 'Tirunelveli Palm Groves',
-    highlights: ['Palm Jaggery (Karupatti)', 'Country Sugar', 'Raw Forest Honey'],
-    isFeatured: false,
-    accentColor: '#1B5E2F'
-  },
-  { 
-    id: 'herbal',
-    name: 'Daily Herbal Wellness',    
-    tamilName: 'ஆரோக்கிய மூலிகை பொடிகள்',
-    iconType: 'leaf',
-    badge: 'Ancestral Herbal Vitality',
-    desc: 'Handpicked wild-crafted botanicals sun-dried to preserve medicinal phyto-nutrients for daily vitality and gut wellness.',
-    items: '4 Herbal Formulations Available',
-    filterParam: 'All',
-    image: null,
-    origin: 'Western Ghats Foothills',
-    highlights: ['Avarampoo Infusion', 'Nilavembu Vitality', 'Tulsi Leaves', 'Moringa Powder'],
-    isFeatured: false,
-    accentColor: '#1B5E2F'
-  },
+  }
 ];
 
 const REVIEWS = [
@@ -195,12 +135,12 @@ const FAQS = [
 const HERO_POWDERS = [
   {
     id: 'turmeric-powder',
-    title: 'Salem Pure Turmeric Powder',
-    subtitle: 'High Curcumin (5.2%) • Sun-Dried & Stone-Ground',
-    badge: '100% Organic',
+    title: 'High-Curcumin Pure Turmeric Powder',
+    subtitle: '100% Pure & Natural • Sun-Dried & Stone-Ground',
+    badge: '100% Pure',
     image: imgTurmeric,
-    tag: 'Authentic Ground Turmeric Roots',
-    price: 'From ₹140',
+    tag: 'Authentic Salem Golden Turmeric',
+    price: 'From ₹40',
     rating: '4.9 ★ (420+)',
     bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
     spiceColor: '#1B5E2F',
@@ -208,12 +148,12 @@ const HERO_POWDERS = [
   },
   {
     id: 'chilli-powder',
-    title: 'Guntur Red Chilli Powder',
+    title: 'Pure Stone-Ground Chilli Powder',
     subtitle: 'Sun-Dried Chillies • Vibrant Natural Red Color',
     badge: 'Stone-Ground',
     image: imgChilli,
-    tag: 'Rich Heat & Zero Added Colors',
-    price: 'From ₹150',
+    tag: 'Medium Spicy Taste & Fine Grind',
+    price: 'From ₹40',
     rating: '4.9 ★ (380+)',
     bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
     spiceColor: '#991b1b',
@@ -221,25 +161,25 @@ const HERO_POWDERS = [
   },
   {
     id: 'coriander-powder',
-    title: 'Native Coriander Powder',
+    title: 'Single-Origin Coriander Powder',
     subtitle: 'Slowly Roasted Tamil Nadu Heirloom Seeds',
     badge: 'Single-Origin',
     image: imgCoriander,
-    tag: 'Essential Daily Kitchen Aroma',
-    price: 'From ₹130',
-    rating: '4.8 ★ (310+)',
+    tag: 'Fresh Aroma & Smooth Texture',
+    price: 'From ₹27',
+    rating: '4.9 ★ (310+)',
     bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
     spiceColor: '#059669',
     auraGlow: 'rgba(5, 150, 105, 0.15)',
   },
   {
     id: 'garam-masala',
-    title: 'Heritage Garam Masala',
-    subtitle: '12 Whole Spices Roasted & Hand-Blended',
+    title: 'Authentic Royal Garam Masala',
+    subtitle: 'Hand-Roasted Whole Heritage Spices',
     badge: 'Heritage Recipe',
     image: imgGaramMasala,
-    tag: 'Cardamom, Cinnamon, Cloves & Star Anise',
-    price: 'From ₹180',
+    tag: 'Warm Aromatic Blend • Zero Preservatives',
+    price: 'From ₹100',
     rating: '5.0 ★ (290+)',
     bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
     spiceColor: '#0f766e',
@@ -247,12 +187,12 @@ const HERO_POWDERS = [
   },
   {
     id: 'sambar-powder',
-    title: 'Traditional Sambar Powder',
+    title: 'Heritage Grandmothers Sambar Powder',
     subtitle: 'Authentic South Indian Generational Recipe',
     badge: 'Chettinad Recipe',
     image: imgSambar,
-    tag: 'Rich Aroma & Perfect Homestyle Flavor',
-    price: 'From ₹160',
+    tag: 'Home-Style Flavor & Authentic Aroma',
+    price: 'From ₹32',
     rating: '4.9 ★ (510+)',
     bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
     spiceColor: '#047857',
@@ -260,103 +200,27 @@ const HERO_POWDERS = [
   }
 ];
 
-const HERO_OILS = [
-  {
-    id: 'coconut-oil',
-    title: 'Wood Cold-Pressed Coconut Oil',
-    subtitle: '100% Pure Chekku • Unrefined & Virgin Extracted',
-    badge: 'Wood Chekku',
-    image: imgOilCoconut,
-    tag: 'Fresh Sun-Dried Copra Extraction',
-    price: 'From ₹280',
-    rating: '4.9 ★ (640+)',
-    bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
-    spiceColor: '#15803d',
-    auraGlow: 'rgba(21, 128, 61, 0.15)',
-  },
-  {
-    id: 'groundnut-oil',
-    title: 'Wood Cold-Pressed Groundnut Oil',
-    subtitle: 'Selected Native Peanuts • Nutty Aroma & Rich Smoke Point',
-    badge: 'Cold-Pressed',
-    image: imgOilGroundnut,
-    tag: 'Slow Chekku Pressed Under 40°C',
-    price: 'From ₹260',
-    rating: '4.9 ★ (820+)',
-    bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
-    spiceColor: '#0f766e',
-    auraGlow: 'rgba(15, 118, 110, 0.15)',
-  },
-  {
-    id: 'gingelly-oil',
-    title: 'Wood Cold-Pressed Gingelly Oil',
-    subtitle: 'First-Grade Black Sesame Seeds & Palm Jaggery Blend',
-    badge: 'Black Sesame',
-    image: imgOilGingelly,
-    tag: 'Generations of Authentic Flavour',
-    price: 'From ₹340',
-    rating: '5.0 ★ (570+)',
-    bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
-    spiceColor: '#1B5E2F',
-    auraGlow: 'rgba(22, 101, 52, 0.15)',
-  },
-  {
-    id: 'sunflower-oil',
-    title: 'Wood Cold-Pressed Sunflower Oil',
-    subtitle: '100% Pure & Natural • Rich in Vitamin E & Healthy Fats',
-    badge: 'Cold-Pressed',
-    image: imgOilSunflower,
-    tag: 'Fresh Seed Cold Extraction',
-    price: 'From ₹240',
-    rating: '4.8 ★ (390+)',
-    bgGradient: 'radial-gradient(circle at 50% 32%, #ffffff 0%, #faf5ea 55%, #f2e9d8 100%)',
-    spiceColor: '#0d9488',
-    auraGlow: 'rgba(13, 148, 136, 0.15)',
-  }
-];
-
 const INITIAL_CATALOG_PRODUCTS = [
   {
-    _id: '6aba0cd61452a86806531192',
-    slug: 'high-curcumin-pure-turmeric-powder',
-    productCode: 'VEN-SP-TUR',
-    name: 'High-Curcumin Pure Turmeric Powder',
-    category: 'Spice Powders',
-    badge: '100% Pure',
-    price: 140,
-    originalPrice: 185,
-    discountPercent: 24,
-    rating: 4.9,
-    reviewsCount: 348,
-    imageUrl: imgTurmeric,
-    images: [imgTurmeric],
-    description: 'High curcumin content authentic Salem turmeric roots, sun-dried and stone ground to retain natural color, aroma, and medicinal healing properties.',
-    variants: [
-      { label: '100g', price: 140, originalPrice: 185 },
-      { label: '250g', price: 320, originalPrice: 420 },
-      { label: '500g', price: 590, originalPrice: 780 }
-    ],
-    inStock: true
-  },
-  {
     _id: '6aba0cd61452a86806531193',
-    slug: 'authentic-guntur-red-chilli-powder',
+    slug: 'pure-red-chilli-powder',
     productCode: 'VEN-SP-CHL',
-    name: 'Authentic Guntur Red Chilli Powder',
-    category: 'Spice Powders',
-    badge: 'Stone Ground',
-    price: 150,
-    originalPrice: 195,
-    discountPercent: 23,
-    rating: 4.8,
-    reviewsCount: 512,
+    name: 'Pure Stone-Ground Chilli Powder',
+    category: 'Spices & Powders',
+    badge: '100% Pure & Natural',
+    price: 40,
+    originalPrice: 50,
+    discountPercent: 20,
+    rating: 4.9,
+    reviewsCount: 184,
     imageUrl: imgChilli,
     images: [imgChilli],
-    description: 'Sun-dried premium red chillies stone-ground at low temperatures. Delivers deep natural red color, balanced piquant heat, and zero artificial dyes.',
+    description: '100% pure & natural red chilli powder with bright natural red color, medium spicy taste, and fine stone grind with no artificial preservatives.',
     variants: [
-      { label: '100g', price: 150, originalPrice: 195 },
-      { label: '250g', price: 340, originalPrice: 440 },
-      { label: '500g', price: 620, originalPrice: 800 }
+      { label: '100g', price: 40, originalPrice: 50, contents: '100g Pack' },
+      { label: '200g', price: 75, originalPrice: 95, contents: '200g Pack' },
+      { label: '500g', price: 190, originalPrice: 240, contents: '500g Pack' },
+      { label: '1000g', price: 340, originalPrice: 420, contents: '1 Kg Family Pack' }
     ],
     inStock: true
   },
@@ -365,128 +229,90 @@ const INITIAL_CATALOG_PRODUCTS = [
     slug: 'single-origin-stone-ground-coriander-powder',
     productCode: 'VEN-SP-COR',
     name: 'Single-Origin Stone Ground Coriander Powder',
-    category: 'Spice Powders',
-    badge: 'Single Origin',
-    price: 130,
-    originalPrice: 165,
-    discountPercent: 21,
+    category: 'Spices & Powders',
+    badge: '100% Pure & Natural',
+    price: 27,
+    originalPrice: 35,
+    discountPercent: 23,
     rating: 4.9,
-    reviewsCount: 289,
+    reviewsCount: 152,
     imageUrl: imgCoriander,
     images: [imgCoriander],
-    description: 'Slow roasted Tamil Nadu heirloom coriander seeds ground to fragrant perfection. An essential heart of daily South Indian curries and gravies.',
+    description: '100% pure & natural coriander powder with fresh aroma and smooth texture. Slow-ground from single-origin coriander seeds with zero preservatives.',
     variants: [
-      { label: '100g', price: 130, originalPrice: 165 },
-      { label: '250g', price: 290, originalPrice: 380 },
-      { label: '500g', price: 540, originalPrice: 700 }
+      { label: '100g', price: 27, originalPrice: 35, contents: '100g Pack' },
+      { label: '200g', price: 56, originalPrice: 70, contents: '200g Pack' },
+      { label: '500g', price: 135, originalPrice: 170, contents: '500g Pack' },
+      { label: '1000g', price: 280, originalPrice: 350, contents: '1 Kg Family Pack' }
     ],
     inStock: true
   },
-
+  {
+    _id: '6aba0cd61452a86806531196',
+    slug: 'authentic-royal-garam-masala',
+    productCode: 'VEN-MS-GAR',
+    name: 'Authentic Royal Garam Masala',
+    category: 'Masala Blends',
+    badge: 'Warm Aromatic Blend',
+    price: 100,
+    originalPrice: 125,
+    discountPercent: 20,
+    rating: 4.9,
+    reviewsCount: 168,
+    imageUrl: imgGaramMasala,
+    images: [imgGaramMasala],
+    description: '100% pure & natural royal garam masala with authentic Indian taste and warm aromatic blend of hand-roasted heritage whole spices with no preservatives.',
+    variants: [
+      { label: '100g', price: 100, originalPrice: 125, contents: '100g Pack' },
+      { label: '200g', price: 200, originalPrice: 250, contents: '200g Pack' },
+      { label: '500g', price: 499, originalPrice: 620, contents: '500g Pack' },
+      { label: '1000g', price: 956, originalPrice: 1190, contents: '1 Kg Family Pack' }
+    ],
+    inStock: true
+  },
   {
     _id: '6aba0cd61452a86806531195',
     slug: 'heritage-grandmothers-sambar-powder',
     productCode: 'VEN-MS-SAM',
     name: 'Heritage Grandmothers Sambar Powder',
     category: 'Masala Blends',
-    badge: 'Bestseller',
-    price: 160,
-    originalPrice: 210,
+    badge: 'Home-Style Flavor',
+    price: 32,
+    originalPrice: 42,
     discountPercent: 24,
     rating: 4.9,
-    reviewsCount: 628,
+    reviewsCount: 210,
     imageUrl: imgSambar,
     images: [imgSambar],
-    description: 'Handcrafted with an authentic generational recipe of roasted dals, whole red chillies, coriander, fenugreek, and aromatic spices.',
+    description: '100% pure & natural special South Indian spice mix crafted following traditional home recipes for an authentic and aromatic sambar.',
     variants: [
-      { label: '100g', price: 160, originalPrice: 210 },
-      { label: '250g', price: 360, originalPrice: 470 },
-      { label: '500g', price: 680, originalPrice: 890 }
+      { label: '100g', price: 32, originalPrice: 42, contents: '100g Pack' },
+      { label: '200g', price: 60, originalPrice: 75, contents: '200g Pack' },
+      { label: '500g', price: 150, originalPrice: 190, contents: '500g Pack' },
+      { label: '1000g', price: 300, originalPrice: 380, contents: '1 Kg Family Pack' }
     ],
     inStock: true
   },
   {
-    _id: '6aba0cd61452a86806531190',
-    slug: 'wood-cold-pressed-virgin-coconut-oil',
-    productCode: 'VEN-OIL-COC',
-    name: 'Wood Cold-Pressed Virgin Coconut Oil',
-    category: 'Cold-Pressed Oils',
-    badge: 'Chekku Pressed',
-    price: 280,
-    originalPrice: 350,
-    discountPercent: 20,
-    rating: 4.8,
-    reviewsCount: 381,
-    imageUrl: imgOilCoconut,
-    images: [imgOilCoconut],
-    description: 'Extracted from sun-dried sulfur-free copra using traditional Vaagai wood pestles below 40°C. Raw, unrefined, virgin quality.',
-    variants: [
-      { label: '500ml', price: 280, originalPrice: 350 },
-      { label: '1 Litre', price: 520, originalPrice: 650 }
-    ],
-    inStock: true
-  },
-  {
-    _id: '6aba0cd61452a8680653118e',
-    slug: 'wood-cold-pressed-groundnut-oil',
-    productCode: 'VEN-OIL-GND',
-    name: 'Wood Cold-Pressed Groundnut Oil (Marachekku)',
-    category: 'Cold-Pressed Oils',
-    badge: 'Rich Aroma',
-    price: 260,
-    originalPrice: 335,
-    discountPercent: 22,
+    _id: '6aba0cd61452a86806531192',
+    slug: 'high-curcumin-pure-turmeric-powder',
+    productCode: 'VEN-SP-TUR',
+    name: 'High-Curcumin Pure Turmeric Powder',
+    category: 'Spices & Powders',
+    badge: '100% Pure & Natural',
+    price: 40,
+    originalPrice: 55,
+    discountPercent: 27,
     rating: 4.9,
-    reviewsCount: 463,
-    imageUrl: imgOilGroundnut,
-    images: [imgOilGroundnut],
-    description: 'Pressed from selected native peanuts. High smoke point, rich nutty aroma, and heart-healthy monounsaturated fats.',
+    reviewsCount: 196,
+    imageUrl: imgTurmeric,
+    images: [imgTurmeric],
+    description: '100% pure & natural high-curcumin authentic Salem turmeric powder, sun-dried and stone ground to retain natural color, aroma, and medicinal healing properties.',
     variants: [
-      { label: '500ml', price: 260, originalPrice: 335 },
-      { label: '1 Litre', price: 490, originalPrice: 630 },
-      { label: '5 Litres', price: 2350, originalPrice: 2990 }
-    ],
-    inStock: true
-  },
-  {
-    _id: '6aba0cd61452a8680653118f',
-    slug: 'wood-cold-pressed-gingelly-sesame-oil',
-    productCode: 'VEN-OIL-GIN',
-    name: 'Wood Cold-Pressed Gingelly Sesame Oil',
-    category: 'Cold-Pressed Oils',
-    badge: 'Palm Jaggery Blend',
-    price: 340,
-    originalPrice: 430,
-    discountPercent: 21,
-    rating: 4.9,
-    reviewsCount: 580,
-    imageUrl: imgOilGingelly,
-    images: [imgOilGingelly],
-    description: 'First-grade black sesame seeds slow-pressed with authentic Palm Jaggery (Karupatti). Rich in calcium and live antioxidants.',
-    variants: [
-      { label: '500ml', price: 340, originalPrice: 430 },
-      { label: '1 Litre', price: 650, originalPrice: 820 }
-    ],
-    inStock: true
-  },
-  {
-    _id: '6aba0cd61452a86806531191',
-    slug: 'wood-cold-pressed-pure-sunflower-oil',
-    productCode: 'VEN-OIL-SUN',
-    name: 'Wood Cold-Pressed Pure Sunflower Oil',
-    category: 'Cold-Pressed Oils',
-    badge: '100% Unrefined',
-    price: 240,
-    originalPrice: 300,
-    discountPercent: 20,
-    rating: 4.7,
-    reviewsCount: 275,
-    imageUrl: imgOilSunflower,
-    images: [imgOilSunflower],
-    description: 'Cold-extracted from high-grade sunflower seeds. Light golden hue, neutral pleasant flavour, and packed with natural Vitamin E.',
-    variants: [
-      { label: '500ml', price: 240, originalPrice: 300 },
-      { label: '1 Litre', price: 460, originalPrice: 580 }
+      { label: '100g', price: 40, originalPrice: 55, contents: '100g Pack' },
+      { label: '200g', price: 75, originalPrice: 95, contents: '200g Pack' },
+      { label: '500g', price: 200, originalPrice: 260, contents: '500g Pack' },
+      { label: '1000g', price: 400, originalPrice: 520, contents: '1 Kg Family Pack' }
     ],
     inStock: true
   }
@@ -537,8 +363,8 @@ export default function HomePage({ onCheckout }) {
   }, []);
 
   // Hero Showcase Category Tab & Slideshow State
-  const [heroTab, setHeroTab] = useState('powders'); // 'powders' | 'oils'
-  const activeHeroSlides = heroTab === 'powders' ? HERO_POWDERS : HERO_OILS;
+  const [heroTab, setHeroTab] = useState('powders');
+  const activeHeroSlides = HERO_POWDERS;
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
   const isDragging = useRef(false);
@@ -942,32 +768,13 @@ export default function HomePage({ onCheckout }) {
                   </div>
                 </div>
 
-                {/* Category Switcher Tabs (Powders vs Oils) placed below the box */}
-                <div className="artisan-category-switcher">
-                  <button 
-                    type="button"
-                    className={`artisan-switch-btn ${heroTab === 'powders' ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCategorySwitch('powders');
-                    }}
-                  >
+                {/* Category Indicator placed below the box */}
+                <div className="artisan-category-switcher" style={{ justifyContent: 'center' }}>
+                  <div className="artisan-switch-btn active" style={{ cursor: 'default' }}>
                     <Sparkles size={14} className="switch-icon" />
-                    <span className="switcher-label-full">Spice Powders · 5 Products</span>
-                    <span className="switcher-label-short">Spices (5)</span>
-                  </button>
-                  <button 
-                    type="button"
-                    className={`artisan-switch-btn ${heroTab === 'oils' ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCategorySwitch('oils');
-                    }}
-                  >
-                    <Droplets size={14} className="switch-icon" />
-                    <span className="switcher-label-full">Cold-Pressed Oils · 4 Products</span>
-                    <span className="switcher-label-short">Oils (4)</span>
-                  </button>
+                    <span className="switcher-label-full">Heritage Farm Spices · 5 Pure Products</span>
+                    <span className="switcher-label-short">Farm Spices (5)</span>
+                  </div>
                 </div>
 
               </div>
@@ -1893,10 +1700,9 @@ export default function HomePage({ onCheckout }) {
                   <button
                     className="btn-qv-buy-now"
                     onClick={() => {
-                      const itemKey = addToCart(quickViewProduct, selectedVariant, quantity);
+                      const url = getWhatsAppProductOrderUrl(quickViewProduct, selectedVariant, quantity);
                       handleCloseQuickView();
-                      setIsCartOpen(false);
-                      router.push(`/checkout?buyNow=${encodeURIComponent(itemKey)}`);
+                      window.open(url, '_blank', 'noopener,noreferrer');
                     }}
                     type="button"
                   >

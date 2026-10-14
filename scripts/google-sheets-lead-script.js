@@ -56,6 +56,7 @@ function doPost(e) {
     // Append new lead as row
     sheet.appendRow([date, time, name, phone, location, source, timestamp]);
 
+    
     return ContentService.createTextOutput(
       JSON.stringify({ status: "success", message: "Lead added successfully" })
     ).setMimeType(ContentService.MimeType.JSON);

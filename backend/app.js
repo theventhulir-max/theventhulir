@@ -37,6 +37,8 @@ app.use(helmet({
 
 
 const allowedOrigins = [
+    'https://theventhulir.com',
+    'https://www.theventhulir.com',
     'https://venthulir.com',
     'https://www.venthulir.com',
     'https://venthulir-1ehl.onrender.com',

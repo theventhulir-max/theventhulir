@@ -5,9 +5,9 @@ import './FloatingWhatsApp.css';
 
 export default function FloatingWhatsApp() {
   const [isHovered, setIsHovered] = useState(false);
-  const phoneNumber = '918778476414';
+  const phoneNumber = '919486145001';
   const defaultMessage = encodeURIComponent('Hello Venthulir! I would like to place an order / inquire about your organic harvest.');
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${defaultMessage}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${defaultMessage}`;
 
   return (
     <aside 

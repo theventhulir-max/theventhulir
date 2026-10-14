@@ -43,7 +43,6 @@ export default function Navbar({ onAuthOpen, onSearchOpen }) {
   const QUICK_CATEGORIES = [
     { id: 'all',          name: t('catAll', 'All Harvest'),       emoji: '🌿' },
     { id: 'spices',       name: t('catSpices', 'Spices & Powders'),  emoji: '🌶️', filter: 'Spices & Powders' },
-    { id: 'oils',         name: t('catOils', 'Cold-Pressed Oils'), emoji: '🛢️', filter: 'Cold-Pressed Oils' },
     { id: 'masalas',      name: t('catMasalas', 'Heritage Masalas'),  emoji: '🍲', filter: 'Masala Blends' },
   ];
 
@@ -51,23 +50,21 @@ export default function Navbar({ onAuthOpen, onSearchOpen }) {
     { text: t('announcement1', '🌿 100% Certified Organic & Single-Origin Direct from Farms'), icon: ShieldCheck },
     { text: t('announcement2', '🚚 Free Express Delivery Across India on Orders Above ₹499'), icon: Truck },
     { text: t('announcement3', '🎁 Flat 15% OFF On 1st Order — Code: FIRSTPURE'), icon: Gift },
-    { text: t('announcement4', '💬 Instant WhatsApp Order & Support: +91 87784 76414'), icon: PhoneCall },
+    { text: t('announcement4', '💬 Instant WhatsApp Order: +91 94861 45001'), icon: PhoneCall },
   ];
 
   const TRENDING_SEARCHES = isTamil ? [
-    'சேலம் மஞ்சள் பொடி',
-    'குண்டூர் மிளகாய்',
-    'மரச்செக்கு நல்லெண்ணெய்',
-    'பாரம்பரிய சாம்பார் பொடி',
-    'மரச்செக்கு கடலை எண்ணெய்',
-    'மஞ்சள்'
+    'மஞ்சள் பொடி',
+    'மிளகாய் பொடி',
+    'மல்லி பொடி',
+    'சாம்பார் பொடி',
+    'கரம் மசாலா'
   ] : [
     'Turmeric Powder',
-    'Red Chilli',
-    'Cold-Pressed Gingelly Oil',
+    'Chilli Powder',
+    'Coriander Powder',
     'Sambar Powder',
-    'Groundnut Oil',
-    'powder'
+    'Garam Masala'
   ];
   
   const [scrolled, setScrolled] = useState(false);

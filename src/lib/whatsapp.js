@@ -193,3 +193,64 @@ export function getWhatsAppOrderUrl(order, status = 'Confirmed', extras = {}) {
 
   return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
 }
+
+/**
+ * VENTHULIR Primary WhatsApp ordering number
+ */
+export const VENTHULIR_WHATSAPP_NUMBER = '919486145001';
+
+/**
+ * Creates direct WhatsApp order link for a single product (Buy Now)
+ */
+export function getWhatsAppProductOrderUrl(product, variant = null, quantity = 1) {
+  const phone = VENTHULIR_WHATSAPP_NUMBER;
+  const name = product?.name || 'Organic Product';
+  const variantLabel = variant?.label ? ` (${variant.label})` : '';
+  const price = variant?.price ?? product?.price ?? 0;
+  const total = price * (quantity || 1);
+  const prodId = product?.slug || product?._id || product?.id || '';
+  const prodUrl = prodId ? `https://theventhulir.com/products/${prodId}` : 'https://theventhulir.com';
+
+  const message = `🌿 *VENTHULIR ORGANIC ORDER* 🌿
+_Pure • Traditional • Wood Cold-Pressed_
+━━━━━━━━━━━━━━━━━━━━━
+
+Hello Venthulir, I would like to order:
+
+📦 *Product:* ${name}${variantLabel}
+🔢 *Quantity:* ${quantity}
+💰 *Price:* ₹${total}${quantity > 1 ? ` (₹${price} each)` : ''}
+🔗 *Product Link:* ${prodUrl}
+
+Please confirm availability and dispatch details! 🙏`;
+
+  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Creates direct WhatsApp order link for cart items
+ */
+export function getWhatsAppCartOrderUrl(cartItems = [], grandTotal = 0) {
+  const phone = VENTHULIR_WHATSAPP_NUMBER;
+  const itemsText = (cartItems || [])
+    .map(item => {
+      const v = item.variant?.label ? ` (${item.variant.label})` : '';
+      return `▫️ *${item.name}*${v} × ${item.quantity} = ₹${(item.price || 0) * item.quantity}`;
+    })
+    .join('\n');
+
+  const message = `🌿 *VENTHULIR ORGANIC ORDER* 🌿
+_Pure • Traditional • Wood Cold-Pressed_
+━━━━━━━━━━━━━━━━━━━━━
+
+Hello Venthulir, I would like to order the following items from my cart:
+
+${itemsText || '▫️ Fresh Organic Harvest Items'}
+
+💰 *Total Amount:* ₹${grandTotal}
+
+Please confirm my order and share delivery details! 🙏`;
+
+  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+}
+

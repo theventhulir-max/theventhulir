@@ -16,9 +16,11 @@ import {
   Leaf, 
   Tag, 
   CheckCircle2, 
-  Sparkles 
+  Sparkles,
+  MessageCircle
 } from 'lucide-react';
 import { PRESET_COUPONS } from '@/data/constants';
+import { getWhatsAppCartOrderUrl } from '@/lib/whatsapp';
 import './CartPage.css';
 
 const SHIPPING_FREE_THRESHOLD = 499;
@@ -391,13 +393,18 @@ function CartPageContent() {
                 </div>
               </div>
 
-              {/* Proceed to Checkout Button */}
+              {/* Proceed to WhatsApp Order Button */}
               <button
                 type="button"
                 className="btn-proceed-checkout"
-                onClick={() => router.push('/checkout')}
+                onClick={() => {
+                  const url = getWhatsAppCartOrderUrl(cartItems, grandTotal);
+                  window.open(url, '_blank', 'noopener,noreferrer');
+                }}
+                style={{ background: '#1B5E2F', borderColor: '#1B5E2F', gap: '10px' }}
               >
-                <span>Proceed to Checkout • ₹{grandTotal}</span>
+                <MessageCircle size={20} color="#ffffff" />
+                <span>Buy Now on WhatsApp • ₹{grandTotal}</span>
                 <ArrowRight size={18} />
               </button>
 

@@ -146,7 +146,8 @@ exports.deleteProduct = async (req, res) => {
         await Product.findByIdAndDelete(req.params.id);
         clearProductsCache();
         res.json({ msg: 'Product deleted' });
-    } catch (err) {
+    }
+    catch (err) {
         res.status(500).json({ error: 'Server Error' });
     }
 };

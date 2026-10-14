@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { INITIAL_PRODUCTS } from '@/data/initialCatalog';
+import { getWhatsAppProductOrderUrl } from '@/lib/whatsapp';
 import { toast } from 'react-toastify';
 import './ProductDetail.css';
 
@@ -244,9 +245,8 @@ function ProductDetailPageContent() {
   };
 
   const handleBuyNow = () => {
-    const itemKey = addToCart(product, selectedVariant, quantity);
-    setIsCartOpen(false);
-    router.push(`/checkout?buyNow=${encodeURIComponent(itemKey)}`);
+    const url = getWhatsAppProductOrderUrl(product, selectedVariant, quantity);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   // Pincode delivery check

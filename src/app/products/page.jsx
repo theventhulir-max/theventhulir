@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { INITIAL_PRODUCTS } from '@/data/initialCatalog';
+import { getWhatsAppProductOrderUrl } from '@/lib/whatsapp';
 import './ProductsPage.css';
 
 const API = '/api';
@@ -118,7 +119,7 @@ function ProductsPageContent({ onCheckout }) {
     }
   }, [activeCategory, searchQuery, sortBy, fetchCatalog]);
 
-  const categories = ['All', 'Spices & Powders', 'Cold-Pressed Oils', 'Masala Blends', 'Grains', 'Sweeteners', 'Herbal'];
+  const categories = ['All', 'Spices & Powders', 'Masala Blends'];
 
   const handleCategoryFilterClick = (catName) => {
     setActiveCategory(catName);
@@ -458,10 +459,9 @@ function ProductsPageContent({ onCheckout }) {
                     <button
                       className="qv-buy-now-btn"
                       onClick={() => {
-                        const itemKey = addToCart(quickViewProduct, selectedVariant, quantity);
+                        const url = getWhatsAppProductOrderUrl(quickViewProduct, selectedVariant, quantity);
                         handleCloseQuickView();
-                        setIsCartOpen(false);
-                        router.push(`/checkout?buyNow=${encodeURIComponent(itemKey)}`);
+                        window.open(url, '_blank', 'noopener,noreferrer');
                       }}
                       type="button"
                     >
