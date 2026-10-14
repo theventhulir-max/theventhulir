@@ -231,64 +231,6 @@ export default function RootLayout({ children }) {
         closes: '21:00',
       },
     ],
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'Authentic Masalas, Spices and Wood Cold-Pressed Oils',
-      itemListElement: [
-        {
-          '@type': 'OfferCatalog',
-          name: 'Heritage Masala Blends',
-          itemListElement: [
-            {
-              '@type': 'Offer',
-              itemOffered: {
-                '@type': 'Product',
-                name: "Grandma's Heritage Sambar Masala Powder",
-                description: 'Authentic 14-spice roasted blend for traditional Tamil Nadu sambar.',
-              },
-            },
-            {
-              '@type': 'Offer',
-              itemOffered: {
-                '@type': 'Product',
-                name: 'Royal Artisan Garam Masala Powder',
-                description: 'Slow-roasted whole spice blend stone pulverized for rich aroma.',
-              },
-            },
-            {
-              '@type': 'Offer',
-              itemOffered: {
-                '@type': 'Product',
-                name: 'Single-Origin Pure Turmeric Powder',
-                description: 'Naturally cultivated Salem & Erode turmeric with 5%+ curcumin.',
-              },
-            },
-          ],
-        },
-        {
-          '@type': 'OfferCatalog',
-          name: 'Mara Chekku Cold-Pressed Oils',
-          itemListElement: [
-            {
-              '@type': 'Offer',
-              itemOffered: {
-                '@type': 'Product',
-                name: 'Mara Chekku Cold-Pressed Groundnut Oil',
-                description: 'Traditional wood-pressed virgin groundnut oil extracted using Vaagai wood.',
-              },
-            },
-            {
-              '@type': 'Offer',
-              itemOffered: {
-                '@type': 'Product',
-                name: 'Mara Chekku Cold-Pressed Gingelly / Sesame Oil',
-                description: 'Traditional wood-pressed gingelly oil sweetened with organic palm jaggery.',
-              },
-            },
-          ],
-        },
-      ],
-    },
   };
 
   const webSiteSchema = {
