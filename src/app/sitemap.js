@@ -1,7 +1,7 @@
 import productsData from '@/data/products.json';
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://venthulir.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://theventhulir.com';
   const currentDate = new Date().toISOString();
 
   // Core Static Routes

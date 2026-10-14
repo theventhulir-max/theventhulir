@@ -1,25 +1,27 @@
 import './globals.css';
 import Providers from '@/components/Providers';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://venthulir.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://theventhulir.com';
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Venthulir — Official Site | 100% Pure Masalas & Wood Cold-Pressed Oils',
+    default: 'Venthulir — Official Store | Venthulir Masala & Wood Cold-Pressed Oils',
     template: '%s | Venthulir',
   },
   description:
-    'Venthulir Official Online Store. Buy 100% pure authentic masala powders (Sambar, Garam, Chilli, Turmeric, Coriander) and Vaagai Mara Chekku cold-pressed oils from Venthulir Natural Harvests. Delivered across Salem, Namakkal, and Tamil Nadu.',
+    'Official Venthulir Store. Buy 100% authentic pure Venthulir Masala powders (Sambar, Garam, Chilli, Turmeric, Coriander) and traditional Vaagai Mara Chekku cold-pressed oils direct from Salem & Namakkal, Tamil Nadu.',
   keywords: [
     'venthulir',
+    'venthulir masala',
+    'the venthulir',
+    'theventhulir',
+    'theventhulir.com',
     'venthulir official',
     'venthulir site',
     'venthulir store',
     'venthulir online',
     'venthulir natural harvests',
-    'the venthulir',
-    'venthulir masala',
     'venthulir spices',
     'venthulir oil',
     'venthulir cold pressed oil',
@@ -72,9 +74,9 @@ export const metadata = {
     },
   },
   openGraph: {
-    title: 'Venthulir — Official Store | Heritage Masalas & Wood Cold-Pressed Oils',
+    title: 'Venthulir — Official Store | Venthulir Masala & Wood Cold-Pressed Oils',
     description:
-      'Official Venthulir Store. Pure traditional wood cold-pressed oils and single-origin handcrafted spices direct from Salem, Namakkal, and Tamil Nadu heritage farms.',
+      'Official Venthulir Store. 100% pure authentic Venthulir Masala and Vaagai Mara Chekku cold-pressed oils direct from Salem, Namakkal, and Tamil Nadu heritage farms.',
     url: siteUrl,
     siteName: 'Venthulir',
     locale: 'en_IN',
@@ -90,7 +92,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Venthulir — Official Store | Pure Masalas & Oils',
+    title: 'Venthulir — Official Store | Venthulir Masala & Oils',
     description:
       'Official site of Venthulir Natural Harvests. Farm-fresh single-origin masalas, sambar powder, cold-pressed oils & pure honey.',
     images: ['/hero-full-banner.jpg'],
@@ -102,6 +104,9 @@ export const metadata = {
       { url: '/logo.png', type: 'image/png', sizes: '512x512' },
     ],
     apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
   },
 };
 
@@ -120,15 +125,17 @@ export default function RootLayout({ children }) {
     name: 'Venthulir',
     legalName: 'Venthulir Natural Harvests',
     alternateName: [
-      'Venthulir',
+      'Venthulir Masala',
       'The Venthulir',
+      'theventhulir',
+      'theventhulir.com',
       'Venthulir Organics',
       'Venthulir Spices',
       'Venthulir Oils',
       'Venthulir Salem',
       'Venthulir Namakkal',
       'வெண்துளிர்',
-      'வெண்துளிர் இயற்கை',
+      'வெண்துளிர் மசாலா',
     ],
     url: siteUrl,
     logo: {
@@ -139,7 +146,7 @@ export default function RootLayout({ children }) {
     },
     image: `${siteUrl}/hero-full-banner.jpg`,
     description:
-      'Venthulir is the leading authentic Tamil Nadu heritage brand producing 100% pure cold-pressed wood churned oils, stone-ground masalas, and single-origin spices.',
+      'Venthulir is the official authentic Tamil Nadu brand producing 100% pure Venthulir Masala blends, single-origin spices, and Vaagai wood cold-pressed oils direct from Salem and Namakkal.',
     email: 'theventhulir@gmail.com',
     telephone: '+918778476414',
     address: {
@@ -152,14 +159,14 @@ export default function RootLayout({ children }) {
     brand: {
       '@type': 'Brand',
       '@id': `${siteUrl}/#brand`,
-      name: 'Venthulir',
-      alternateName: 'வெண்துளிர்',
+      name: 'Venthulir Masala',
+      alternateName: ['Venthulir', 'The Venthulir', 'வெண்துளிர் மசாலா'],
       logo: `${siteUrl}/logo.png`,
     },
     sameAs: [
+      'https://www.instagram.com/venthulir',
       'https://www.instagram.com/theventhulir',
-      'https://facebook.com/venthulir',
-      'https://twitter.com/venthulir',
+      'https://www.facebook.com/venthulir',
     ],
     contactPoint: {
       '@type': 'ContactPoint',

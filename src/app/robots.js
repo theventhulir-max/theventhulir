@@ -1,5 +1,5 @@
 export default function robots() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://venthulir.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://theventhulir.com';
 
   return {
     rules: [

@@ -111,7 +111,7 @@ We hope you and your family enjoy the authentic taste, deep aroma, and wholesome
 Your feedback means the world to our traditional farming collective. Reply to this chat to share your experience with us! 💬
 
 🛒 *Order Fresh Heritage Produce Again:*
-👉 https://venthulir.com/products
+👉 https://theventhulir.com/products
 
 Thank you for supporting indigenous farmers! 🌾🙏
 

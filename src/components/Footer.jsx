@@ -116,7 +116,7 @@ export default function Footer() {
 
               <div className="footer-social-row">
                 <a 
-                  href="https://instagram.com" 
+                  href="https://instagram.com/venthulir" 
                   target="_blank" 
                   rel="noreferrer" 
                   className="social-pill-btn"
@@ -125,7 +125,7 @@ export default function Footer() {
                   <Instagram size={16} />
                 </a>
                 <a 
-                  href="https://facebook.com" 
+                  href="https://facebook.com/venthulir" 
                   target="_blank" 
                   rel="noreferrer" 
                   className="social-pill-btn"
