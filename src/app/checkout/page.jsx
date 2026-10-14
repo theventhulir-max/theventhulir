@@ -52,6 +52,26 @@ const getFallbackImage = (name = '', category = '') => {
   return '/assets/hero/turmeric.png';
 };
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existing) {
+      if (window.Razorpay) return resolve(true);
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => resolve(false));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -110,7 +130,7 @@ function CheckoutContent() {
     zipCode: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('WhatsApp Order');
+  const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMsg, setCouponMsg] = useState({ type: '', text: '' });
@@ -118,6 +138,11 @@ function CheckoutContent() {
   const [submitting, setSubmitting] = useState(false);
   const [orderError, setOrderError] = useState('');
   const [placedOrder, setPlacedOrder] = useState(null);
+
+  // Preload Razorpay Checkout Script for instant response
+  useEffect(() => {
+    loadRazorpayScript();
+  }, []);
 
   // Live Catalog Inventory for Real-Time Stock Detection
   const [catalogProducts, setCatalogProducts] = useState([]);
@@ -268,7 +293,7 @@ function CheckoutContent() {
 
   // Order Submission
   const handlePlaceOrder = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setOrderError('');
 
     if (!isAuthenticated) {
@@ -292,6 +317,12 @@ function CheckoutContent() {
       return;
     }
 
+    const cleanPhone = formData.phone.trim().replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setOrderError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+
     if (hasOutOfStockSelected) {
       const oosItem = outOfStockItems.find(i => selectedKeys.has(i.key));
       const oosName = oosItem?.name || 'Selected product';
@@ -299,33 +330,135 @@ function CheckoutContent() {
       return;
     }
 
-    setSubmitting(true);
+    const finalEmail = formData.email.trim() || user?.email || (cleanPhone ? `${cleanPhone}@guest.venthulir.com` : 'guest@venthulir.com');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('venthulir_token') : null;
 
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('venthulir_token') : null;
-      let razorpayOrderId = null;
-      let razorpayPaymentId = null;
-
-      // Online payment handling
-      if (paymentMethod === 'UPI / QR Pay' || paymentMethod === 'Online') {
-        try {
-          const payRes = await fetch('/api/payment/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: finalPayable })
-          });
-          if (payRes.ok) {
-            const payData = await payRes.json();
-            razorpayOrderId = payData.orderId || payData.id;
-          }
-        } catch (e) {
-          console.warn('Razorpay order creation fallback:', e);
+    // ──────────────────────────────────────────
+    // OPTION 1: RAZORPAY LIVE ONLINE PAYMENT
+    // ──────────────────────────────────────────
+    if (paymentMethod === 'Razorpay' || paymentMethod === 'Online') {
+      setSubmitting(true);
+      try {
+        const isScriptLoaded = await loadRazorpayScript();
+        if (!isScriptLoaded || typeof window.Razorpay === 'undefined') {
+          setOrderError('Unable to load secure Razorpay gateway. Please check your internet connection or choose Cash on Delivery.');
+          setSubmitting(false);
+          return;
         }
+
+        // 1. Create order on server
+        const createRes = await fetch('/api/payment/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: finalPayable })
+        });
+
+        const orderData = await createRes.json();
+        if (!createRes.ok || !orderData.id) {
+          setOrderError(orderData.error || 'Failed to initialize payment gateway. Please try again.');
+          setSubmitting(false);
+          return;
+        }
+
+        // 2. Open Razorpay modal
+        const rzpKey = orderData.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_live_TMQGrVUfpYDJzx';
+        const rzpOptions = {
+          key: rzpKey,
+          amount: orderData.amount,
+          currency: orderData.currency || 'INR',
+          name: 'Venthulir Organic',
+          description: `Order (${selectedCount} items) • ₹${finalPayable}`,
+          image: '/assets/hero/turmeric.png',
+          order_id: orderData.id,
+          handler: async function (response) {
+            try {
+              setSubmitting(true);
+              const verifyRes = await fetch('/api/payment/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  customerName: formData.name.trim(),
+                  customerEmail: finalEmail,
+                  phone: formData.phone.trim(),
+                  deliveryAddress: {
+                    address: formData.address.trim(),
+                    city: formData.city.trim(),
+                    state: formData.state.trim(),
+                    zipCode: formData.zipCode.trim()
+                  },
+                  items: selectedCartItems.map(item => ({
+                    product: item.productId || item.product || item._id,
+                    name: item.name,
+                    variant: item.variant?.label || item.variant || null,
+                    price: item.price,
+                    quantity: item.quantity,
+                    imageUrl: item.image
+                  })),
+                  originalAmount: selectedTotal,
+                  discountAmount,
+                  couponCode: appliedCoupon ? appliedCoupon.code : null,
+                  shippingCharge,
+                  totalAmount: finalPayable,
+                })
+              });
+
+              const verifyData = await verifyRes.json();
+              if (verifyRes.ok && verifyData.order) {
+                const confirmedOrder = verifyData.order;
+                setPlacedOrder(confirmedOrder);
+                if (selectedCartItems.length === cartItems.length) {
+                  clearCart();
+                } else {
+                  selectedCartItems.forEach(item => removeFromCart(item.key));
+                }
+              } else {
+                setOrderError(verifyData.error || 'Payment signature verification failed. Please contact support.');
+              }
+            } catch (verErr) {
+              console.error('Payment verification error:', verErr);
+              setOrderError('Payment received, but verification request timed out. Please contact Venthulir support with your Payment ID: ' + response.razorpay_payment_id);
+            } finally {
+              setSubmitting(false);
+            }
+          },
+          prefill: {
+            name: formData.name.trim(),
+            email: finalEmail.endsWith('@guest.venthulir.com') ? '' : finalEmail,
+            contact: cleanPhone.slice(-10)
+          },
+          theme: {
+            color: '#1B5E2F'
+          },
+          modal: {
+            ondismiss: function () {
+              setSubmitting(false);
+            }
+          }
+        };
+
+        const rzp = new window.Razorpay(rzpOptions);
+        rzp.on('payment.failed', function (failResp) {
+          console.error('Razorpay payment failed:', failResp);
+          setOrderError(`Payment failed: ${failResp.error?.description || 'Transaction was declined.'}`);
+          setSubmitting(false);
+        });
+        rzp.open();
+      } catch (err) {
+        console.error('Razorpay initialization error:', err);
+        setOrderError('Network error connecting to payment gateway. Please retry.');
+        setSubmitting(false);
       }
+      return;
+    }
 
-      const cleanPhone = formData.phone.trim().replace(/\D/g, '');
-      const finalEmail = formData.email.trim() || user?.email || (cleanPhone ? `${cleanPhone}@guest.venthulir.com` : 'guest@venthulir.com');
-
+    // ──────────────────────────────────────────
+    // OPTION 2: WHATSAPP / CASH ON DELIVERY
+    // ──────────────────────────────────────────
+    setSubmitting(true);
+    try {
       const orderPayload = {
         customerName: formData.name.trim(),
         customerEmail: finalEmail,
@@ -349,9 +482,7 @@ function CheckoutContent() {
         couponCode: appliedCoupon ? appliedCoupon.code : null,
         shippingCharge,
         totalAmount: finalPayable,
-        paymentMethod,
-        razorpayOrderId,
-        razorpayPaymentId
+        paymentMethod: 'Cash on Delivery'
       };
 
       const res = await fetch('/api/orders', {
@@ -366,7 +497,7 @@ function CheckoutContent() {
       const data = await res.json();
 
       if (res.ok) {
-        const confirmedOrder = data.order || { _id: 'VEN-' + Date.now(), totalAmount: finalPayable };
+        const confirmedOrder = data.order || { _id: 'VEN-' + Date.now(), totalAmount: finalPayable, paymentMethod: 'Cash on Delivery' };
         setPlacedOrder(confirmedOrder);
         // Remove only the purchased items from cart, keep remaining items safe
         if (selectedCartItems.length === cartItems.length) {
@@ -379,7 +510,7 @@ function CheckoutContent() {
         try {
           const orderRef = (confirmedOrder._id || confirmedOrder.id || '').toString().slice(-8).toUpperCase();
           const itemsList = selectedCartItems.map(i => `▫️ *${i.name}*${i.variant?.label ? ` (${i.variant.label})` : ''} × ${i.quantity} = ₹${i.price * i.quantity}`).join('\n');
-          const waMsg = `🌿 *VENTHULIR ORGANIC ORDER* 🌿\n_Order Reference: #${orderRef}_\n━━━━━━━━━━━━━━━━━━━━━\n\nHello Venthulir, I placed an order via website:\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${formData.phone.trim()}\n📍 *Address:* ${formData.address.trim()}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.zipCode.trim()}\n\n🛒 *Items:*\n${itemsList}\n\n💰 *Total Payable:* ₹${finalPayable}\n\nPlease confirm my order and dispatch details! 🙏`;
+          const waMsg = `🌿 *VENTHULIR ORGANIC ORDER* 🌿\n_Order Reference: #${orderRef}_\n━━━━━━━━━━━━━━━━━━━━━\n\nHello Venthulir, I placed an order via website:\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${formData.phone.trim()}\n📍 *Address:* ${formData.address.trim()}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.zipCode.trim()}\n\n🛒 *Items:*\n${itemsList}\n\n💰 *Total Payable:* ₹${finalPayable} (Cash on Delivery)\n\nPlease confirm my order and dispatch details! 🙏`;
           const waUrl = `https://api.whatsapp.com/send?phone=919486145001&text=${encodeURIComponent(waMsg)}`;
           if (typeof window !== 'undefined') {
             window.open(waUrl, '_blank');
@@ -437,9 +568,17 @@ function CheckoutContent() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', fontSize: '0.86rem', marginBottom: '12px' }}>
               <div>
-                <span style={{ color: '#788c81', display: 'block', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>Total Payable</span>
+                <span style={{ color: '#788c81', display: 'block', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>Total Amount</span>
                 <strong style={{ color: '#b45309', fontSize: '1.1rem' }}>₹{placedOrder.totalAmount || finalPayable}</strong>
-                <span style={{ fontSize: '11px', color: '#557262', marginLeft: '4px' }}>({paymentMethod})</span>
+                <span style={{ fontSize: '11px', color: '#557262', marginLeft: '4px' }}>
+                  ({placedOrder.paymentMethod || paymentMethod})
+                </span>
+                {placedOrder.razorpayPaymentId && (
+                  <div style={{ fontSize: '11px', color: '#166534', fontWeight: 700, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <ShieldCheck size={13} color="#166534" />
+                    <span>Payment ID: <code style={{ fontFamily: 'monospace', background: '#ecfdf5', padding: '1px 6px', borderRadius: '4px' }}>{placedOrder.razorpayPaymentId}</code></span>
+                  </div>
+                )}
               </div>
               <div>
                 <span style={{ color: '#788c81', display: 'block', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>Estimated Dispatch</span>
@@ -464,17 +603,6 @@ function CheckoutContent() {
 
           {/* Action Buttons: WhatsApp Chat, Live Tracking & Continue Shopping */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <a 
-              href={`https://api.whatsapp.com/send?phone=919486145001&text=${encodeURIComponent(`🌿 Order #${orderRef}: Hello Venthulir, I have booked my order for ₹${placedOrder.totalAmount || finalPayable}. Please confirm dispatch details! 🙏`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-confirm-place-order" 
-              style={{ textDecoration: 'none', width: '100%', justifyContent: 'center', fontSize: '0.95rem', padding: '14px 20px', background: '#25D366', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)' }}
-            >
-              <MessageCircle size={20} />
-              <span>Connect & Confirm on WhatsApp (+91 94861 45001)</span>
-            </a>
-
             <Link 
               href="/profile" 
               className="btn-confirm-place-order" 
@@ -484,6 +612,17 @@ function CheckoutContent() {
               <span>Track Live Order Status in My Profile</span>
               <ArrowRight size={18} />
             </Link>
+
+            <a 
+              href={`https://api.whatsapp.com/send?phone=919486145001&text=${encodeURIComponent(`🌿 Order #${orderRef}: Hello Venthulir, I have booked my order for ₹${placedOrder.totalAmount || finalPayable} via ${placedOrder.paymentMethod || paymentMethod}. Please confirm dispatch details! 🙏`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-confirm-place-order" 
+              style={{ textDecoration: 'none', width: '100%', justifyContent: 'center', fontSize: '0.95rem', padding: '14px 20px', background: '#25D366', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(37, 211, 102, 0.3)' }}
+            >
+              <MessageCircle size={20} />
+              <span>{placedOrder.paymentMethod === 'Razorpay' ? 'Need Help? Chat on WhatsApp' : 'Connect & Confirm on WhatsApp'} (+91 94861 45001)</span>
+            </a>
 
             <Link 
               href="/products" 
@@ -740,18 +879,53 @@ function CheckoutContent() {
               </div>
 
               <div className="payment-methods-grid">
-                {/* Order via WhatsApp */}
+                {/* Online Payment via Razorpay */}
                 <div 
-                  className="payment-method-card selected"
-                  style={{ borderColor: '#1B5E2F', background: '#f0fdf4' }}
+                  className={`payment-method-card ${paymentMethod === 'Razorpay' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('Razorpay')}
+                  role="button"
+                  tabIndex={0}
+                  style={paymentMethod === 'Razorpay' ? { borderColor: '#1B5E2F', background: '#f0fdf4' } : {}}
                 >
-                  <div className="payment-method-title">
-                    <MessageCircle size={18} color="#1B5E2F" />
-                    <span style={{ color: '#1B5E2F', fontWeight: 700 }}>Order via WhatsApp (+91 94861 45001)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <div className="payment-method-title">
+                      <CreditCard size={18} color="#1B5E2F" />
+                      <span style={{ color: '#1B5E2F', fontWeight: 750 }}>Online Payment (Razorpay)</span>
+                    </div>
+                    <span style={{ fontSize: '10px', background: '#dcfce7', color: '#166534', fontWeight: 800, padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.5px' }}>
+                      ⚡ INSTANT
+                    </span>
                   </div>
                   <p className="payment-method-desc" style={{ color: '#2d5a3c' }}>
-                    Instant order booking directly through our official farm WhatsApp. No advance payment required; our team will confirm dispatch and assist you personally.
+                    Pay securely via UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards, or NetBanking. Instant confirmation.
                   </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '0.74rem', color: '#15803d', fontWeight: 650 }}>
+                    <ShieldCheck size={14} color="#15803d" />
+                    <span>Official 256-bit Encrypted Gateway</span>
+                  </div>
+                </div>
+
+                {/* Cash on Delivery / WhatsApp Order */}
+                <div 
+                  className={`payment-method-card ${paymentMethod === 'WhatsApp Order' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('WhatsApp Order')}
+                  role="button"
+                  tabIndex={0}
+                  style={paymentMethod === 'WhatsApp Order' ? { borderColor: '#1B5E2F', background: '#f0fdf4' } : {}}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <div className="payment-method-title">
+                      <MessageCircle size={18} color="#1B5E2F" />
+                      <span style={{ color: '#1B5E2F', fontWeight: 750 }}>Cash on Delivery / WhatsApp</span>
+                    </div>
+                  </div>
+                  <p className="payment-method-desc" style={{ color: '#2d5a3c' }}>
+                    Confirm order via official farm WhatsApp (+91 94861 45001). Pay in cash when your farm harvest arrives.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '0.74rem', color: '#557262', fontWeight: 600 }}>
+                    <Truck size={14} color="#557262" />
+                    <span>Pay at your doorstep</span>
+                  </div>
                 </div>
               </div>
 
@@ -772,24 +946,53 @@ function CheckoutContent() {
                     {orderError}
                   </div>
                 )}
-                <button
-                  type="submit"
-                  className="btn-confirm-place-order"
-                  disabled={submitting || selectedCartItems.length === 0}
-                  style={selectedCartItems.length === 0 ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
-                >
-                  {submitting ? (
-                    <span>Securing Your Order...</span>
-                  ) : selectedCartItems.length === 0 ? (
-                    <span>Select Products to Order</span>
-                  ) : (
-                    <>
-                      <MessageCircle size={18} />
-                      <span>Confirm Order via WhatsApp ({selectedCount} items) • ₹{finalPayable}</span>
-                      <ArrowRight size={18} />
-                    </>
-                  )}
-                </button>
+                {!isAuthenticated ? (
+                  <button
+                    type="button"
+                    onClick={() => router.push('/login?redirect=/checkout')}
+                    className="btn-confirm-place-order"
+                    style={{
+                      background: '#1B5E2F',
+                      color: '#ffffff',
+                      border: '1px solid #1B5E2F',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(27, 94, 47, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Lock size={18} />
+                    <span>Sign In to Place Order • ₹{finalPayable}</span>
+                    <ArrowRight size={18} />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="btn-confirm-place-order"
+                    disabled={submitting || selectedCartItems.length === 0}
+                    style={selectedCartItems.length === 0 ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
+                  >
+                    {submitting ? (
+                      <span>{paymentMethod === 'Razorpay' ? 'Opening Payment Gateway...' : 'Securing Your Order...'}</span>
+                    ) : selectedCartItems.length === 0 ? (
+                      <span>Select Products to Order</span>
+                    ) : paymentMethod === 'Razorpay' ? (
+                      <>
+                        <CreditCard size={18} />
+                        <span>Pay via UPI / Cards ({selectedCount} items) • ₹{finalPayable}</span>
+                        <ArrowRight size={18} />
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle size={18} />
+                        <span>Confirm WhatsApp Order ({selectedCount} items) • ₹{finalPayable}</span>
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.76rem', color: '#557262', marginTop: '12px' }}>
                   <ShieldCheck size={14} color="#1B5E2F" />
                   <span>Zero Risk • Authenticity Guaranteed</span>
@@ -1098,7 +1301,7 @@ function CheckoutContent() {
                   }}
                 >
                   <Lock size={18} />
-                  <span>Sign In to Order via WhatsApp • ₹{finalPayable}</span>
+                  <span>Sign In to Place Order • ₹{finalPayable}</span>
                   <ArrowRight size={18} />
                 </button>
               ) : (
@@ -1109,13 +1312,19 @@ function CheckoutContent() {
                   style={selectedCartItems.length === 0 ? { opacity: 0.6, cursor: 'not-allowed', background: '#94a3b8' } : {}}
                 >
                   {submitting ? (
-                    <span>Securing Your Order...</span>
+                    <span>{paymentMethod === 'Razorpay' ? 'Opening Payment Gateway...' : 'Securing Your Order...'}</span>
                   ) : selectedCartItems.length === 0 ? (
                     <span>Select Products to Order</span>
+                  ) : paymentMethod === 'Razorpay' ? (
+                    <>
+                      <CreditCard size={18} />
+                      <span>Pay via UPI / Cards ({selectedCount} items) • ₹{finalPayable}</span>
+                      <ArrowRight size={18} />
+                    </>
                   ) : (
                     <>
                       <MessageCircle size={18} />
-                      <span>Confirm Order via WhatsApp ({selectedCount} items) • ₹{finalPayable}</span>
+                      <span>Confirm WhatsApp Order ({selectedCount} items) • ₹{finalPayable}</span>
                       <ArrowRight size={18} />
                     </>
                   )}

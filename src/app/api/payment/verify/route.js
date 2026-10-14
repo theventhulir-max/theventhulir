@@ -7,6 +7,7 @@ import Product from '@/models/Product';
 import { reduceStock } from '@/lib/inventory';
 import { sendEmail } from '@/lib/email';
 import { generatePaymentSuccessEmail } from '@/lib/emailTemplates';
+import { invalidateProductCache, invalidateStatsCache } from '@/lib/cache';
 
 export async function POST(request) {
   try {
@@ -81,13 +82,23 @@ export async function POST(request) {
 
     await newOrder.save();
 
-    if (customerEmail) {
+    // Invalidate product and stats cache upon confirmed Razorpay payment
+    invalidateProductCache();
+    invalidateStatsCache();
+
+    const isGuestPlaceholder = !customerEmail || customerEmail.endsWith('@guest.venthulir.com') || customerEmail === 'guest@venthulir.com';
+    if (!isGuestPlaceholder) {
       const orderRef = newOrder._id.toString().slice(-8).toUpperCase();
       const emailHtml = generatePaymentSuccessEmail({
         order: newOrder,
         customerName: customerName || 'Valued Patron',
-        paymentId: razorpay_payment_id,
-        totalAmount
+        items: enrichedItems,
+        totalAmount,
+        shippingCharge: shippingCharge || 0,
+        discountAmount: discountAmount || 0,
+        couponUsed: (couponCode && typeof couponCode === 'string') ? couponCode.toUpperCase() : null,
+        deliveryAddress,
+        paymentMethod: 'Razorpay'
       });
 
       sendEmail({
