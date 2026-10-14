@@ -106,7 +106,7 @@ export const metadata = {
     apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'M1DseAJ-HJLpd7gQPyeHkIrl7yWpeUXTnZy_C-fmxR0',
   },
 };
 
@@ -340,6 +340,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="google-site-verification" content="M1DseAJ-HJLpd7gQPyeHkIrl7yWpeUXTnZy_C-fmxR0" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
